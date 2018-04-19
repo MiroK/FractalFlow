@@ -1,5 +1,10 @@
 using FractalFlow
+using StaticArrays
 using Base.Test
 
 # write your own tests here
-@test 1 == 2
+x = SVector((1., 2))
+y = SVector((2., 3))
+
+Curve([x, y])
+
