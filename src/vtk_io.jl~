@@ -1,0 +1,89 @@
+"""Load from VTU"""
+function read_curve_vtu(path::AbstractString)
+    last(splitext(path)) == ".vtu" || throw("$(path) is not VTU file")
+    # The hierchy is doc
+    #                  piece
+    #                    points
+    #                    cells
+    xroot = root(parse_file(path))
+    grid = first(child_elements(xroot))
+    piece = first(child_elements(grid))
+
+    npoints = parse(Int, attribute(piece, "NumberOfPoints"))
+    
+    points, cells = child_elements(piece)
+    # The data is X0 Y0 Z0  X1 Y1 Z1  
+    points_data = split(strip(content(points)), "  ")
+    # Identify dimensionality from offets
+    segments, offsets, types = child_elements(cells)
+
+    # At this point we have one of line/tri/tet mesh. Line mesh is easiest
+    # as we already have all the edges for tri and tet they need to be
+    # made manually
+    mesh_types = Set(split(strip(content(types)), " "))
+    @assert length(mesh_types) == 1
+    mesh_type = pop!(mesh_types)
+
+    # A line mesh
+    if mesh_type == "3"
+        dim = parse(Int, string(first(content(offsets))))
+        # Index data is i0 j0  i1 j1
+        segments_data = split(strip(content(segments)), "  ")
+
+        nsegments = parse(Int, attribute(piece, "NumberOfCells"))
+        # Finally read in
+        segments = Vector{Tuple{Int, Int}}(nsegments)
+        for (i, seg) in enumerate(segments_data)
+            # One based indexing
+            segments[i] = Tuple((1+parse(Int, v)) for v in split(seg))
+        end
+    
+        points = Vector{SVector{dim, Float64}}(npoints)
+        for (i, point) in enumerate(points_data)
+            points[i] = SVector((parse(Float64, v) for v in split(point)[1:dim])...)
+        end
+
+        return (points, segments)
+    end
+
+    # A simplex mesh of triangles or tets
+    @assert mesh_type == "5" || mesh_type == "10"
+
+    nvertices = (mesh_type == "5") ? 3 : 4
+    # Cell local
+    edge_indices = collect(Combinatorics.combinations(collect(1:nvertices), 2))
+
+    # Cells are made of indicices - need to split to edges
+    cell_data = split(strip(content(segments)), "  ")
+
+    # Ath this point we don't really know about the segments counts
+    segments = Set{Tuple{Int, Int}}()
+    for cell in imap(s -> map(x -> parse(Int, x), split(s, " ")), cell_data)
+        # Break cell to edges
+        for (i0, i1) in edge_indices
+            # One based indexing
+            v0, v1 = cell[i0]+1, cell[i1]+1
+            push!(segments, (v0 < v1) ? (v0, v1) : (v1, v0))
+        end
+    end
+    # Unique can be converted
+    segments = collect(segments)
+
+    # We load points assuming 3d
+    points = Vector{SVector{3, Float64}}(npoints)
+    for (i, point) in enumerate(points_data)
+        points[i] = SVector((parse(Float64, v) for v in split(point))...)
+    end
+
+    # For trinagle we might be in 2d (a z=0 plane)
+    nvertices == 4 && return (points, segments)
+    # Not there
+    norm(map(last, points), 1) > 0 && return (points, segments)
+    # Chop
+    points2d = Vector{SVector{2, Float64}}(npoints)
+    for (row, point) in enumerate(points)
+        points2d[row] = SVector(point[1], point[2])
+    end
+
+    (points2d, segments)
+end
