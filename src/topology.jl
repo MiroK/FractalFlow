@@ -268,8 +268,97 @@ end
 
 num_loops(c::Curve) = num_loops(c, branch_map(c))
 
+"""
+Graph from the mesh has as edges the line elements. In dual graph the 
+edges are vertices. Zeros of the Laplace(DualGraph(curve)) count the 
+loops
+"""
+function DualGraph(g::Graph)
+    vertex_neighbors = LightGraphs.SimpleGraphs.adj(g)
 
-using StaticArrays 
+    dual_graph = Graph(ne(g))
+    for (v, neighbors) in enumerate(vertex_neighbors)
+        for n in neighbors
+            add_edge!(dual_graph, (n, v))
+        end
+    end
+    dual_graph
+end
+
+DualGraph(c::Curve) = DualGraph(Graph(c))
+
+"""
+If the graph is split into branches how many colors are needed to 
+colorthem so that no 2 neighboring branches have the same color.
+"""
+function num_colors(c::Curve, bmap::Dict{Tuple{Int, Int}, Vector{Vector{Int}}})
+    # Build a reduced representation where each branch is a vertex
+    # a graph. We code the branch as bmap[first(code)][last(code)]
+    codes = Vector{Tuple{Tuple{Int, Int}, Int}}()
+    for key in keys(bmap)
+        for vertex in 1:length(bmap[key])
+            push!(codes, (key, vertex))
+        end
+    end
+
+    # Edges
+    g = Graph(length(codes))
+    for (v0, code0) in enumerate(codes)
+        e0, e1 = first(code0)  # Vertices of the branch
+        for (v1, code1) in enumerate(codes[(v0+1):end])
+            if (e0 in first(code1) || e1 in first(code1))
+                add_edge!(g, (v0, v0+v1))
+            end 
+        end
+    end
+    
+    colors = greedy_color(g)
+    colors.num_colors
+end
+
+num_colors(c::Curve) = num_colors(c, branch_map(c))
+
+"""
+If the graph is split into branches how many colors are needed to 
+colorthem so that no 2 neighboring branches have the same color. 
+Produce a color function for the graph (EdgeFunction).
+"""
+function color_f(curve::Curve, bmap::Dict{Tuple{Int, Int}, Vector{Vector{Int}}})
+    # Build a reduced representation where each branch is a vertex
+    # a graph. We code the branch as bmap[first(code)][last(code)]
+    codes = Vector{Tuple{Tuple{Int, Int}, Int}}()
+    for key in keys(bmap)
+        for vertex in 1:length(bmap[key])
+            push!(codes, (key, vertex))
+        end
+    end
+
+    # Edges
+    g = Graph(length(codes))
+    for (v0, code0) in enumerate(codes)
+        e0, e1 = first(code0)  # Vertices of the branch
+        for (v1, code1) in enumerate(codes[(v0+1):end])
+            if (e0 in first(code1) || e1 in first(code1))
+                add_edge!(g, (v0, v0+v1))
+            end 
+        end
+    end
+    color_map = greedy_color(g)
+
+    color_data = Vector{Int}(ne(curve))
+    for (branch, color) in enumerate(color_map.colors)
+        key, index = codes[branch]
+        for edge in bmap[key][index]
+            color_data[edge] = color
+        end
+    end
+    EdgeFunction(curve, color_data)
+end
+
+color_f(c::Curve) = color_f(c, branch_map(c))
+
+
+#using StaticArrays 
 segments = [(SVector(0., 0.), SVector(1., 0)),
             (SVector(1., 0.), SVector(1., -1)),
             (SVector(1., -1.), SVector(0., -1)),
@@ -315,50 +404,3 @@ segments = [(SVector(0., 0.), SVector(1., 0)),
             (SVector(0., 1.), SVector(0., 0)),
             (SVector(0., 0.), SVector(1., 1.))]
 cccc = Curve(segments)
-
-# # write_curve(cc, "xxx.vtu")
-
-# function PyGraph(g::Graph)
-#     pyg = nx.Graph()
-#     for e in edges(g)
-#         py"$(pyg).add_edge($(e.src), $(e.dst))"
-#     end
-#     pyg
-# end
-
-
-# function number_of_loops(c::Curve)
-#     bmap = branch_map(c)
-
-#     nloops = 0
-#     paths = collecpt(keys(bmap))
-#     while any(length(v) > 1 for v in values(bmap))
-#         path = findfirst(p -> length(bmap[p]) > 1, paths)
-#         pop!(bmap[paths[path]])
-#         nloops += 1
-#     end
-#     println(">>>$(nloops)")
-
-#     # Can be represented as Graph
-#     py_graph = nx.Graph()
-#     for (v0, v1) in keys(bmap)
-#         py"$(py_graph).add_edge($(v0), $(v1))"
-#     end
-    
-#     nloops += size(nx_algo.cycle_basis(py_graph), 1)
-#     nloops
-# end
-
-# """Dual graph"""
-# function DualGraph(g::Graph)
-#     vertex_neighbors = LightGraphs.SimpleGraphs.adj(g)
-
-#     dual_graph = Graph(ne(g))
-#     for (v, neighbors) in enumerate(vertex_neighbors)
-#         for n in neighbors
-#             edge = (n < v) ? (n, v) : (v, n)
-#             add_edge!(dual_graph, edge)
-#         end
-#     end
-#     dual_graph
-# end

@@ -2,31 +2,31 @@
   
 ** Topology
 
-   [OK] number of loops
-   [OK] loop basis
-     [!] as dict
-     [!] oriented values
-   color_f
-   number of colors
+   1. [OK] number of loops
+   2. [OK] loop basis
+     - [!] as dict
+     - [!] oriented values
+   3. [OK] color_f
+   4. [OK] number of colors
 
 ** Geometry
-   length
-   fractal dimension
-   tortuosity
-   longest branch
+   1. length
+   2. fractal dimension
+   3. tortuosity
+   4. longest branch
 
 ** Generation
-   fractals
-   random curves / calling gmsh
+   1. fractals
+   2. random curves / calling gmsh
 
 * Python
 
 ** Solver
-   what should be the equations?
-   what should be the monitored quantities, i.e. saturation, localization (how to get these)
-
+   1. what should be the equations?
+   2. what should be the monitored quantities, i.e. saturation, localization (how to get these)
+   
 * Julia/Python
-  Automatize the mesh/curve gen -> solve -> quantities [save mesh, curve props, outputs]
-  AI clasifier
+  1. Automatize the mesh/curve gen -> solve -> quantities [save mesh, curve props, outputs]
+  2. AI clasifier
   
 
