@@ -10,7 +10,7 @@ import Base: length, write          # Lenght of curve, writing curve
 import LightGraphs: nv, ne, Graph, degree     
 
 export Curve, VertexFunction, EdgeFunction, is_consistent, entity_dim
-export nv, ne, Graph, degree_f
+export nv, ne, Graph, degree_f, num_loops, branch_map, num_branches, num_colors, color_f
 export write
 
 # -------------------------------------------------------------------
@@ -83,13 +83,15 @@ function Curve(path::AbstractString)
 end
 
 # Various properties of curves
-include("topology.jl")  # Connectivity matter
-# include("geometry.jl")  # Distance matters
+include("topology.jl")  # Connectivity
 
-# struct Segment{D, T}
-#     A::SVector{D, T}
-#     B::SVector{D, T}
-# end
+"""|AB|"""
+struct Segment{D, T}
+    A::SVector{D, T}
+    B::SVector{D, T}
+end
+
+include("geometry.jl")  # Distance
 
 # length{D, T}(line::Segment{D, T}) = norm(line.B - line.A)
 
