@@ -117,3 +117,25 @@ function write(path::AbstractString, f::CurveFunction)
 
     vtk_save(vtk_file)
 end
+
+
+"""Write curve"""
+function write{D, T}(path::AbstractString, curve::Curve{D, T})
+    name, ext = splitext(path)
+    ext == ".vtu" || throw("$(path) is not a VTU file")
+
+    cells = Vector{MeshCell}(length(curve.segments))
+    for (i, seg) in enumerate(curve.segments)
+        cells[i] = MeshCell(VTKCellTypes.VTK_LINE, [seg[1], seg[2]])
+    end
+
+    points = zeros((D, length(curve.points)))
+    for (col, point) in enumerate(curve.points)
+        for (row, value) in enumerate(point)
+            points[row, col] = value
+        end
+    end
+
+    vtk_file = vtk_grid(name, points, cells)
+    vtk_save(vtk_file)
+end

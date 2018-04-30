@@ -118,7 +118,7 @@ function BoxCounter{D, T}(curve::Curve{D, T})
     seg_box = Deque{Pair{Vector{Int}, BoundingBox{D, T}}}()
     push!(seg_box, Pair(collect(1:length(segs)), box))
 
-    BoxCounter(segs, seg_box, hmin(curve)/2)
+    BoxCounter(segs, seg_box, min_segment(curve)/2)
 end
 
 # One box intersected. That box is bounding box
@@ -236,5 +236,3 @@ Step the estimator for curve returning the counter which can be
 further evolved if the precision is not okay
 """
 fractal_dim{D, T}(c::Curve{D, T}, nlevels::Int) = fractal_dim!(FractalDim(c), nlevels)
-
-

@@ -102,5 +102,9 @@ fit = Polynomials.polyfit(log.(counts[end-3:end]), log.(sizes[end-3:end]), 1)
 dim = -last(fit.a)
 println("Estimated fractal dim $(dim)")
 
+dims = [first(FractalFlow.fractal_dim(cc, 8)) for _ in 1:10]
+@show dims
 
-println(FractalFlow.fractal_dim(cc, 8))
+dim = mean(dims)
+dim_std = std(dims)
+@show (dim, dim_std)
