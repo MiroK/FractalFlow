@@ -64,72 +64,7 @@ end
 ######################################################################
 # Box counting and fractional dimension
 ######################################################################
+include("fractal_dim.jl")
 
-struct BoundingBox{D, T}
-    low::SVector{D, T}
-    high::SVector{D, T}
-end
-
-"""Bbox of segment"""
-BoundingBox{D, T}(line::Segment{D, T}) = BoundingBox(SVector(Tuple(min(line.A[i], line.B[i]) for i in 1:D)),
-                                                     SVector(Tuple(max(line.A[i], line.B[i]) for i in 1:D)))
-
-                                                                    
-"""Bbox of collection of segments"""
-function BoundingBox{D, T}(segments::Vector{Segment{D, T}})
-
-    low = SVector(Tuple(minimum(min(seg.A[i], seg.B[i]) for seg in segments) for i in 1:D))
-
-    high = SVector(Tuple(maximum(max(seg.A[i], seg.B[i]) for seg in segments) for i in 1:D))
-
-    return BoundingBox(low, high)
-end
-
-
-"""Bbox of a curve"""
-function BoundingBox{D, T}(curve::Curve{D, T})
-    segs = Vector{SVector{D, T}}(ne(curve))
-    for (i, segment) in enumerate(iter_segments(curve))
-        segs[i] = segment
-    end
-    BoundingBox(segs)
-end
-
-
-"""Collisions"""
-# Liang-Barsky algorithm
-function collides{D, T}(line::Segment{D, T}, box::BoundingBox{D, T})
-    x, y = line.A
-    dx = line.B[1] - x
-    dy = line.B[2] - y
-
-    p = [-dx, dx, -dy, dy]
-    q = [x-box.low[1], box.high[1]-x, y-box.low[2], box.high[2]-y]
-
-    u1 = -Inf
-    u2 = Inf
-    for i in 1:4
-        (p[i] == 0 && q[i] < 0) && return false
-
-        t = q[i]/p[i]
-
-        if (p[i] < 0 && u1 < t)
-            u1 = max(0, t)
-        elseif (p[i] > 0 && u2 > t)
-            u2 = min(1, t)
-        end
-    end
-
-   (u1 > u2) && return false
-
-    true
-end
-
-# fractional_dim_estimator
-#
-# fractiona_dim(c::Curve, nres)
-
-# tortuosity
-#
-#
-
+# IDEA: fd in parallel
+# TODO: tortuosity

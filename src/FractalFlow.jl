@@ -5,12 +5,16 @@ using IterTools      # Imap
 using LightXML       # Parse XML, VTU
 using LightGraphs    #
 using Combinatorics  # Combinations
+using DataStructures # Deque
+using Polynomials
 
-import Base: length, write          # Lenght of curve, writing curve
+
+import Base: length, write, size, split, start, next, done
 import LightGraphs: nv, ne, Graph, degree     
 
 export Curve, VertexFunction, EdgeFunction, is_consistent, entity_dim
 export nv, ne, Graph, degree_f, num_loops, branch_map, num_branches, num_colors, color_f
+export FractalDim, fractal_dim, estimate_fd
 export write
 
 # -------------------------------------------------------------------
