@@ -21,7 +21,7 @@ end
 
 
 """Step for the koch curve ---- to  --/\-- """
-function koch_t_step(v0::SVector{2, Float64}, v1::SVector{2, Float64}, turn=:left)
+function koch_t_step(v0::SVector{2, Float64}, v1::SVector{2, Float64}, turn=:right)
     @assert v0 != v1
 
     v13 = v0*2/3 + v1*1/3
@@ -38,7 +38,7 @@ end
 
 
 """Step for the koch curve ---- to  --∩-- """
-function koch_q1_step(v0::SVector{2, Float64}, v1::SVector{2, Float64}, turn=:left)
+function koch_q1_step(v0::SVector{2, Float64}, v1::SVector{2, Float64}, turn=:right)
     @assert v0 != v1
 
     v13 = v0*2/3 + v1*1/3
@@ -54,7 +54,7 @@ function koch_q1_step(v0::SVector{2, Float64}, v1::SVector{2, Float64}, turn=:le
 end
 
 """Step for the koch curve ---- to  --∩u-- """
-function koch_q2_step(v0::SVector{2, Float64}, v1::SVector{2, Float64}, turn=:left)
+function koch_q2_step(v0::SVector{2, Float64}, v1::SVector{2, Float64}, turn=:right)
     @assert v0 != v1
 
     v14 = v0*3/4 + v1*1/4
@@ -64,10 +64,10 @@ function koch_q2_step(v0::SVector{2, Float64}, v1::SVector{2, Float64}, turn=:le
     t = (v1 - v0)
 
     shift = (turn == :left) ? SVector{2, Float64}(t[2], -t[1]) : SVector{2, Float64}(-t[2], t[1])
-    shit /= 4
+    shift /= 4
     
     # New points
-    [v14, v14+shift, vmid+shift, vmid-shift, v34-shift, v34]
+    [v14, v14+shift, vmid+shift, vmid, vmid-shift, v34-shift, v34]
 end
 
 

@@ -82,18 +82,20 @@ end
 
 # -------------------------------------------------------------------
 
-segments = [(SVector(0., 0.), SVector(1., 0)),
-            (SVector(1., 0.), SVector(1., -1)),
-            (SVector(1., -1.), SVector(0., -1)),
-            (SVector(0., -1.), SVector(0., 0)),
-            (SVector(0., 0.), SVector(-1., 0)),
-            (SVector(-1., 0.), SVector(-1., 1)),
-            (SVector(-1., 1.), SVector(0., 1)),
-            (SVector(0., 1.), SVector(0., 0)),
-            (SVector(-1., 0), SVector(0., 1)),
-            (SVector(0., -1.), SVector(1., 0))]
+# segments = [(SVector(0., 0.), SVector(1., 0)),
+#             (SVector(1., 0.), SVector(1., -1)),
+#             (SVector(1., -1.), SVector(0., -1)),
+#             (SVector(0., -1.), SVector(0., 0)),
+#             (SVector(0., 0.), SVector(-1., 0)),
+#             (SVector(-1., 0.), SVector(-1., 1)),
+#             (SVector(-1., 1.), SVector(0., 1)),
+#             (SVector(0., 1.), SVector(0., 0)),
+#             (SVector(-1., 0), SVector(0., 1)),
+#             (SVector(0., -1.), SVector(1., 0))]
 
-cc = Curve(segments)
+# cc = Curve(segments)
+
+cc = koch_t_curve(6)
 
 (counts, sizes) = fd_estimation(cc, 8)
 
