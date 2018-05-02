@@ -95,16 +95,17 @@ end
 
 # cc = Curve(segments)
 
-cc = koch_t_curve(6)
+cc = koch_q1_curve(6)
 
 (counts, sizes) = fd_estimation(cc, 8)
 
-# Use the last 4 for eastimation
+# Use the last 3 for eastimation
 fit = Polynomials.polyfit(log.(counts[end-3:end]), log.(sizes[end-3:end]), 1)
 dim = -last(fit.a)
 println("Estimated fractal dim $(dim)")
 
-dims = [first(FractalFlow.fractal_dim(cc, 8)) for _ in 1:10]
+# FIXME: Would be fun to spin this in parallel
+dims = [first(FractalFlow.fractal_dim(cc, 10)) for _ in 1:10]
 @show dims
 
 dim = mean(dims)

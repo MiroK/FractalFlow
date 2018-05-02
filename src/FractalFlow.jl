@@ -39,6 +39,12 @@ end
 geometrical_dim{D, T}(::Curve{D, T}) = D
 
 
+"""|AB|"""
+struct Segment{D, T}
+    A::SVector{D, T}
+    B::SVector{D, T}
+end
+
 # Constructors
 include("curve.jl")
 
@@ -94,12 +100,6 @@ end
 
 # Various properties of curves
 include("topology.jl")  # Connectivity
-
-"""|AB|"""
-struct Segment{D, T}
-    A::SVector{D, T}
-    B::SVector{D, T}
-end
 
 include("geometry.jl")  # Distance, fractal properties
 

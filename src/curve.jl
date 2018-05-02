@@ -9,31 +9,43 @@ end
 
 """Curve from segments defined by physical vertices"""
 function Curve{D, T}(segments::Vector{Tuple{SVector{D, T}, SVector{D, T}}})
-    points = Vector{SVector{D, T}}()
-    index_segments = Vector{Tuple{Int, Int}}()
+    points = Dict{SVector{D, T}, Int}()
+    index_segments = Set{Tuple{Int, Int}}()
 
     count = 1
     for segment in segments
         v0, v1 = segment
 
         # Try finding in existing points, otherwise new
-        index0 = findfirst(points, v0)
-        if index0 == 0
-            push!(points, v0)
-            index0 = count
+        if v0 ∉ keys(points)
+            index0 = (points[v0] = count)
             count += 1
+        else
+            index0 = points[v0]
         end
+        
         # Try finding in existing points, otherwise new
-        index1 = findfirst(points, v1)
-        if index1 == 0
-            push!(points, v1)
-            index1 = count
+        if v1 ∉ keys(points)
+            index1 = (points[v1] = count)
             count += 1
+        else
+            index1 = points[v1]
         end
+        edge = (index0 < index1) ? (index0, index1) : (index1, index0)
         # The segment
-        push!(index_segments, (index0, index1))
+        push!(index_segments, edge)
     end
+    points = sort(collect(keys(points)), by=k->points[k])
+    index_segments = collect(index_segments)
+    
     Curve(points, index_segments)
+end
+
+
+"""Curve from segments defined by physical vertices"""
+function Curve{D, T}(segments::Vector{Segment{D, T}})
+    segments = Vector{Tuple{SVector{D, T}, SVector{D, T}}}([(s.A, s.B) for s in segments])
+    Curve(segments)
 end
 
 

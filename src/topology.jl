@@ -20,19 +20,20 @@ function edge_vertex_connectivity(c::Curve)
     mapping
 end
 
+# FIXME
 """
 Compute the inverse mapping of when single K maps to several Vs. So 
 one V maps to several Ks.
 """
 function invert{K, V}(mapping::Dict{K, Vector{V}})
-    i_mapping = Dict{V, Vector{K}}()
+    i_mapping = Dict{V, Set{K}}()
     for pair in mapping
         value = pair.first
         for key in pair.second
-            in(key, keys(i_mapping)) ? push!(i_mapping[key], value) : push!(i_mapping, Pair(key, [value]))
+            in(key, keys(i_mapping)) ? push!(i_mapping[key], value) : push!(i_mapping, Pair(key, Set(value)))
         end
     end
-    i_mapping
+    Dict(k => collect(v) for (k, v) in mapping)
 end
 
 
