@@ -42,6 +42,7 @@ function next{D, T, N, M}(f::Fractal{D, T, N, M}, state::Int)
         end
         state += M
     end
+    @assert length(f.segments) == state
     f.state = state
     state
 end
@@ -144,16 +145,7 @@ function KochQ2Fractal{T}(A::SVector{2, T}=SVector(0., 0.), B::SVector{2, T}=SVe
     Fractal([A, B], 8, koch_q2!)
 end
 
-
-function fractal_curve{D, T, N, M}(f::Fractal{D, T, N, M})
-    segments = Vector{Segment{D, T}}(length(f.segments))
-    for (i, seg) in enumerate(f.segments)
-        segments[i] = seg
-    end
-
-    Curve(segments)
-end
-
+# --------------------------------------------------------------------
 
 function levy!{T}(input::MVector{1, Segment{2, T}}, output::MVector{2, Segment{2, T}})
     v0, v1 = input[1].A, input[1].B
@@ -174,6 +166,7 @@ function LevyFractal{T}(A::SVector{2, T}=SVector(0., 0.), B::SVector{2, T}=SVect
     Fractal([A, B], 2, levy!)
 end
 
+# --------------------------------------------------------------------
 
 function dragon!{T}(input::MVector{2, Segment{2, T}}, output::MVector{4, Segment{2, T}})
     v0, v1, v2 = input[1].A, input[1].B, input[2].B
@@ -199,140 +192,54 @@ function DragonFractal{T}(A::SVector{2, T}=SVector(0., 0.),
     Fractal([A, B, C], 4, dragon!)
 end
 
-# start{D, T, N, M}(f::Fractal{D, T, N, M}) = length(f.segments)
+# --------------------------------------------------------------------
 
-# function next{D, T, N, M}(f::Fractal{D, T, N, M}, state::Int)
+function sierpinski_arrow_head!{T}(input::MVector{3, Segment{2, T}}, output::MVector{9, Segment{2, T}})
+    v0, v1, v2, v3 = input[1].A, input[2].A, input[3].A, input[3].B
+
+    vmid = (v0 + v3)/2
     
-#     taken, state = state, 0
-#     while taken > 0
-#         taken -= N
+    t = (v3 - v0)
 
-#         for i in 1:N
-#             f.step_in[i] = shift!(f.segments)
-#         end
-#         f.step!(f.step_in, f.step_out)
+    v01 = (v0 + vmid)/2
+    v10 = (v1 + vmid)/2
 
-#         for j in 1:M
-#             push!(f.segments, f.step_out[j])
-#         end
-#         state += M
-#     end
-#     nout
-# end
+    v23 = (v2 + vmid)/2
+    v32 = (v3 + vmid)/2
 
-# done{D, T, N, M}(f::Fractal{D, T, N, M}) = true
-
-
-# function koch_line!{T}(input::SArray{Tuple{1}, Segment{2, T}, 1, 1}, output::SArray{Tuple{4}, Segment{2, T}, 1, 4})
-#     v0, v1 = seed[1].A, seed[1].B
-
-#     v13 = v0*2/3 + v1*1/3
-#     v23 = v0*1/3 + v1*2/3
-
-#     t = (v1 - v0)
-
-#     shift = SVector(t[2], -t[1])
+    vtop = vmid + 2*((v1+v2)/2 - vmid)
     
-#     vmid = 0.5*(v0 + v1) + shift*sqrt(3)/6
-    
-#     # New points
-#     new[1] = Segment(v0, v13)
-#     new[2] = Segment(v13, vmid)
-#     new[3] = Segment(vmid, v23)
-#     new[4] = Segment(v23, v1)
-# end
+    v12 = (v1 + vtop)/2
+    v21 = (v2 + vtop)/2
 
-# function KochFractal()
-#     input = (Segment(SVector(0., 0.), SVector(1. 1.)), )
-# end
-
-
-# # In general curves that are free of bifurcations can be evolved by inserting
-# # points between pair. 
-# function evolve_koch(niters::Int, v0::SVector{2, Float64}, v1::SVector{2, Float64}, evolver::Function)
-#     @assert v0 != v1
-#     @assert niters > 0
-#     # This is now pretty but perhaps faster
-#     points = Vector{SVector{2, Float64}}([v0, v1])
-#     while niters > 0
-#         new_points = Vector{SVector{2, Float64}}()
-#         for i in 1:(length(points)-1)
-#             v0, v1 = points[i], points[i+1]
-#             append!(new_points, [v0, evolver(v0, v1)...])
-#         end
-#         push!(new_points, v1)
-
-#         points = new_points
-#         niters -= 1
-#     end
-#     points
-# end
+    output[1] = Segment(v0, v01)
+    output[2] = Segment(v01, v10)
+    output[3] = Segment(v10, v1)
+    output[4] = Segment(v1, v12)
+    output[5] = Segment(v12, v21)
+    output[6] = Segment(v21, v2)
+    output[7] = Segment(v2, v23)
+    output[8] = Segment(v23, v32)
+    output[9] = Segment(v32, v3)
+end
 
 
-# """Step for the koch curve ---- to  --/\-- """
-# function koch_t_step(v0::SVector{2, Float64}, v1::SVector{2, Float64}, turn=:right)
-#     @assert v0 != v1
+function SierpinskiArrowHeadFractal{T}(A::SVector{2, T}=SVector(0., 0.),
+                                       B::SVector{2, T}=SVector(0.25, sqrt(3)/4.),
+                                       C::SVector{2, T}=SVector(0.75, sqrt(3)/4.),
+                                       D::SVector{2, T}=SVector(1., 0.))
+    Fractal([A, B, C, D], 9, sierpinski_arrow_head!)
+end
 
-#     v13 = v0*2/3 + v1*1/3
-#     v23 = v0*1/3 + v1*2/3
+# --------------------------------------------------------------------
 
-#     t = (v1 - v0)
+function fractal_curve{D, T, N, M}(f::Fractal{D, T, N, M})
+    segments = Vector{Segment{D, T}}(length(f.segments))
+    for (i, seg) in enumerate(f.segments)
+        segments[i] = seg
+    end
 
-#     shift = (turn == :left) ? SVector{2, Float64}(t[2], -t[1]) : SVector{2, Float64}(-t[2], t[1])
-    
-#     vmid = 0.5*(v0 + v1) + shift*sqrt(3)/6
-#     # New points
-#     [v13, vmid, v23]
-# end
+    Curve(segments)
+end
 
-
-# """Step for the koch curve ---- to  --∩-- """
-# function koch_q1_step(v0::SVector{2, Float64}, v1::SVector{2, Float64}, turn=:right)
-#     @assert v0 != v1
-
-#     v13 = v0*2/3 + v1*1/3
-#     v23 = v0*1/3 + v1*2/3
-
-#     t = (v1 - v0)
-
-#     shift = (turn == :left) ? SVector{2, Float64}(t[2], -t[1]) : SVector{2, Float64}(-t[2], t[1])
-#     shift /= 3
-    
-#     # New points
-#     [v13, v13+shift, v23+shift, v23]
-# end
-
-# """Step for the koch curve ---- to  --∩u-- """
-# function koch_q2_step(v0::SVector{2, Float64}, v1::SVector{2, Float64}, turn=:right)
-#     @assert v0 != v1
-
-#     v14 = v0*3/4 + v1*1/4
-#     v34 = v0*1/4 + v1*3/4
-#     vmid = v0/2 + v1/2
-
-#     t = (v1 - v0)
-
-#     shift = (turn == :left) ? SVector{2, Float64}(t[2], -t[1]) : SVector{2, Float64}(-t[2], t[1])
-#     shift /= 4
-    
-#     # New points
-#     [v14, v14+shift, vmid+shift, vmid, vmid-shift, v34-shift, v34]
-# end
-
-
-
-# for evolve in (:koch_t_step, :koch_q1_step, :koch_q2_step)
-#     curve_name = Symbol(join([split(string(evolve), "_")[1:end-1]..., "curve"], "_"))
-
-#     @eval begin
-#         function $(curve_name)(niters::Int,
-#                                v0::SVector{2, Float64}=SVector(0., 0.),
-#                                v1::SVector{2, Float64}=SVector(1., 0.))
-#             Curve(evolve_koch(niters, v0, v1, $(evolve)))
-#         end
-#     end
-# end
-
-
-# # TODO: hilbert curve (space filling)
-# #       dragon curve
+Curve{D, T, N, M}(f::Fractal{D, T, N, M}) = Curve(collect(f.segments))

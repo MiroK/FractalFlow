@@ -30,10 +30,10 @@ function invert{K, V}(mapping::Dict{K, Vector{V}})
     for pair in mapping
         value = pair.first
         for key in pair.second
-            in(key, keys(i_mapping)) ? push!(i_mapping[key], value) : push!(i_mapping, Pair(key, Set(value)))
+            haskey(i_mapping, key) ? push!(i_mapping[key], value) : push!(i_mapping, Pair(key, Set(value)))
         end
     end
-    Dict(k => collect(v) for (k, v) in mapping)
+    Dict(k => collect(v) for (k, v) in i_mapping)
 end
 
 
