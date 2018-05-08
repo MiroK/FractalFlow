@@ -11,7 +11,6 @@ the curve by (0.1, 0.1) in x direction (top, bottom) and (0.1, 0.1) in y directi
 - If successful, there is now `levy.msh` in the folder. [[https://github.com/MiroK/FractalFlow/blob/master/doc/mesh.png]]
 This file needs to be converted for [[http://fenicsproject.org/][FEniCS]
 Using `dolfin-convert levy.msh levy.xml` you should get 3 XML files
-- The final step is updating FEniCS [[https://github.com/MiroK/FractalFlow/blob/master/src/fem/localization/hamiltonian.py][solver]] to use the generated XML data. This is a stub of an eigenvalue solver which computed first computes the (binary) 
-potential for the curve and then gets the smallest eigenvalues.
+- The final step is updating FEniCS [[https://github.com/MiroK/FractalFlow/blob/master/src/fem/localization/hamiltonian.py][solver]] to use the generated XML data. This is a stub of an eigenvalue solver which computed first computes the (binary)  potential for the curve and then gets the smallest eigenvalues.
 [[https://github.com/MiroK/FractalFlow/blob/master/doc/potential.png]]
 [[https://github.com/MiroK/FractalFlow/blob/master/doc/eigenmode.png]]
