@@ -1,5 +1,3 @@
-using WriteVTK   
-
 """Load from VTU
 Obviously we want to load the line mesh. Meshes of triangles/tetrahedrons
 are loaded in as a graph of edges.

@@ -1,5 +1,3 @@
-using PyCall
-
 @pyimport networkx as nx
 @pyimport networkx.algorithms as nx_algo
 

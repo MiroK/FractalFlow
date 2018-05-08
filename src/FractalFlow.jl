@@ -7,6 +7,8 @@ using LightGraphs    #
 using Combinatorics  # Combinations
 using DataStructures # Deque
 using Polynomials
+using WriteVTK
+using PyCall        # need networkx on python side
 
 
 import Base: length, write, size, split, start, next, done
@@ -20,6 +22,7 @@ export min_segment, max_segment
 # Generation, fractals
 export koch_t_curve, koch_q1_curve, koch_q2_curve
 # Generation, random
+export gmsh_code
 # IO
 export write
 
@@ -103,8 +106,8 @@ include("topology.jl")  # Connectivity
 
 include("geometry.jl")  # Distance, fractal properties
 
-
 # Generation
 include("generation.jl")  # Fractals and random curves
+include("gmsh_code.jl")  #
 
 end # module

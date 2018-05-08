@@ -1,1 +1,10 @@
 julia 0.6
+StaticArrays   # SVector
+IterTools      # Imap
+LightXML       # Parse XML, VTU
+LightGraphs    #
+Combinatorics  # Combinations
+DataStructures # Deque
+Polynomials
+WriteVTK
+PyCall 

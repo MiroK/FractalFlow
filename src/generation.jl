@@ -102,7 +102,7 @@ function koch_q1!{T}(input::MVector{1, Segment{2, T}}, output::MVector{5, Segmen
     output[2] = Segment(v13, shift_v13)
     output[3] = Segment(shift_v13, shift_v23)
     output[4] = Segment(shift_v23, v23)
-    output[5] = Sefment(v23, v1)
+    output[5] = Segment(v23, v1)
 end
 
 function KochQ1Fractal{T}(A::SVector{2, T}=SVector(0., 0.), B::SVector{2, T}=SVector(1., 0.))
@@ -134,10 +134,10 @@ function koch_q2!{T}(input::MVector{1, Segment{2, T}}, output::MVector{8, Segmen
     output[2] = Segment(v14, shift_v14)
     output[3] = Segment(shift_v14, up_vmid)
     output[4] = Segment(up_vmid, vmid)
-    output[5] = Sefment(vmid, down_vmid)
+    output[5] = Segment(vmid, down_vmid)
     output[6] = Segment(down_vmid, shift_v34)
     output[7] = Segment(shift_v34, v34)
-    output[8] = Sefment(v34, down_v1)
+    output[8] = Segment(v34, down_v1)
 
 end
 

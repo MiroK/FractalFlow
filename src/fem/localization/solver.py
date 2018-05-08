@@ -1,5 +1,32 @@
+from scipy.linalg import eigh
+from scipy.sparse import csr_matrix
+import numpy as np
 from petsc4py import PETSc
 from slepc4py import SLEPc
+
+
+def exact_eigensolve(A, B, V, params):
+    '''A direct solver intended to run in serial'''
+    assert A.comm.size == 1
+
+    A = csr_matrix(A.getValuesCSR()[::-1], shape=A.size)
+    B = csr_matrix(B.getValuesCSR()[::-1], shape=B.size)
+    
+    eigw, eigv = eigh(A.todense(), B.todense())
+    sort_idx = np.argsort(eigw)
+
+    # Fall back to 10 eigenpair
+    nev = params.get('-eps_type', 10)
+    eigw = eigv[sort_idx[:nev]]
+    eigv = (eigv.T)[sort_idx[:nev]]
+
+    eigenpairs = []
+    for w, v in zip(eigw, eigv):
+        f = Function(V)
+        f.vector().set_local(v)
+
+        eigenpairs.append((w, f))
+    return eigenpairs
 
 
 def eigensolve(A, B, V, params, small_enough=5000):
