@@ -1,5 +1,5 @@
 # Getting distance to curve
-from dolfin import Function, FunctionSpace, SubsetIterator
+from dolfin import Function, FunctionSpace, SubsetIterator, as_backend_type
 
 
 def dof_chi(f, V, marker=1):

@@ -78,3 +78,4 @@ function is_consistent{D, T}(c::Curve{D, T})
     # All is well
     true
 end
+

@@ -1,6 +1,7 @@
 from scipy.linalg import eigh
 from scipy.sparse import csr_matrix
 import numpy as np
+from dolfin import Function
 from petsc4py import PETSc
 from slepc4py import SLEPc
 
@@ -17,7 +18,7 @@ def exact_eigensolve(A, B, V, params):
 
     # Fall back to 10 eigenpair
     nev = params.get('-eps_type', 10)
-    eigw = eigv[sort_idx[:nev]]
+    eigw = eigw[sort_idx[:nev]]
     eigv = (eigv.T)[sort_idx[:nev]]
 
     eigenpairs = []
@@ -32,7 +33,9 @@ def exact_eigensolve(A, B, V, params):
 def eigensolve(A, B, V, params, small_enough=5000):
     '''Solve A*u = lB*u returning the eigenpairs'''
     # Do small enought exacty
-    if V.dim() < small_enough: return exact_eigensolve(A, B, V, params)
+    if V.dim() < small_enough:
+        print 'Using scipy as dim(V) is %d' % V.dim()
+        return exact_eigensolve(A, B, V, params)
     
     # NOTE: you configure this from command line
     # Here are some defaults

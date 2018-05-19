@@ -11,7 +11,7 @@ using WriteVTK
 using PyCall        # need networkx on python side
 
 
-import Base: length, write, size, split, start, next, done
+import Base: length, write, size, split, start, next, done, scale!
 import LightGraphs: nv, ne, Graph, degree     
 # Topology
 export Curve, VertexFunction, EdgeFunction, is_consistent, entity_dim

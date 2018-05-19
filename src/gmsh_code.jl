@@ -94,7 +94,7 @@ function gmsh_code{T}(c::Curve{2, T},
 end
 
 """Write the gmsh code"""
-function gmsh_code{T}(curve::Curve,
+function gmsh_code{T}(c::Curve,
                       bdry_pts::Vector{SVector{2, T}},
                       bdry_lines::Vector{Tuple{Int, Int}},
                       path::AbstractString)
@@ -135,6 +135,7 @@ function gmsh_code{T}(curve::Curve,
     loop = join(map(string, (n+1):(n+length(bdry_lines))), ", ")
     write(f, "Curve Loop(1) = {$(loop)};\n")
     write(f, "Plane Surface(1) = {1};\n")
+    write(f, "Physical Surface(1) = {1};\n")
     # The magic
     write(f, "Line{crack[]} In Surface{1};\n")
 
