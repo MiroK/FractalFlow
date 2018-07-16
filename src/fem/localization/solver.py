@@ -1,7 +1,7 @@
 from scipy.linalg import eigh
 from scipy.sparse import csr_matrix
 import numpy as np
-from dolfin import Function
+from dolfin import Function, PETScVector
 from petsc4py import PETSc
 from slepc4py import SLEPc
 

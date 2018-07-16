@@ -4,39 +4,41 @@ from dolfin import Function, FunctionSpace, SubsetIterator, as_backend_type
 
 def dof_chi(f, V, marker=1):
     '''
-    Let f be a facet function. Build a function in V which is such 
+    Let f be a an edge function. Build a function in V which is such 
     that all dofs where f == marker are 1 and are 0 otherwise.
     '''
-    assert f.mesh().topology().dim() == 2
+    tdim = f.mesh().topology().dim()
     assert f.dim() == 1
 
     assert V.mesh().id() == f.mesh().id()
     assert V.ufl_element().family() == 'Lagrange'
 
     mesh = V.mesh()
-    mesh.init(1, 2)
-    f2c = mesh.topology()(1, 2)
-    c2f = mesh.topology()(2, 1)
-
+    mesh.init(1, tdim)
+    mesh.init(tdim, 1)
+    e2c = mesh.topology()(1, tdim)
+    c2e = mesh.topology()(tdim, 1)
+    
     dm = V.dofmap()
     first, last = dm.ownership_range()
     n = last - first
 
     is_local = lambda i, f=first, l=last: f <= i+f < l
     
-    # Triangle has 3 facets
-    facet_dofs = [dm.tabulate_facet_dofs(i) for i in range(3)]
-
+    # Triangle has 3 facets/edges, tet has 6 edges
+    nedges = mesh.ufl_cell().num_edges()
+    edge_dofs = [dm.tabulate_entity_closure_dofs(1, i) for i in range(nedges)]
+    
     chi = Function(V)
     values = chi.vector().get_local()
-    for facet in SubsetIterator(f, marker):
-        fi = facet.index()
+    for edge in SubsetIterator(f, marker):
+        edgei = edge.index()
 
-        c = f2c(fi)[0]
+        c = e2c(edgei)[0]  # Any cell
         dofs = dm.cell_dofs(c)
 
-        local_facet = c2f(c).tolist().index(fi)
-        dofs = filter(is_local, dofs[facet_dofs[local_facet]])
+        local_edge = c2e(c).tolist().index(edgei)
+        dofs = filter(is_local, dofs[edge_dofs[local_edge]])
         values[dofs] = 1.
     # Sync
     chi.vector().set_local(values)

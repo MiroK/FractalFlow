@@ -36,18 +36,25 @@ def hamiltonian(mesh, potential):
 if __name__ == '__main__':
     from distance import dof_chi
     from solver import eigensolve
-    
-    mesh_file = 'levy.xml'
-    curve_file = 'levy_facet_region.xml'
 
-    mesh = Mesh(mesh_file)
-    f = MeshFunction('size_t', mesh, curve_file)
+    # 2d
+    if False:
+        mesh_file = 'levy.xml'
+        curve_file = 'levy_facet_region.xml'
+
+        mesh = Mesh(mesh_file)
+        f = MeshFunction('size_t', mesh, curve_file)
+
+    mesh = UnitCubeMesh(16, 16, 16)
+    f = MeshFunction('size_t', mesh, 1, 0)
+    CompiledSubDomain('near(x[0], 0.5) && near(x[1], 0.5)').mark(f, 1)
+    
     # Potential computed once the space is given (so is a function of V)
     potential = lambda space, f=f: dof_chi(f, space)
 
     A, B, V = hamiltonian(mesh, potential)
     # Compute eigenpairs
-    pairs = eigensolve(A, B, V, params={})
+    pairs = eigensolve(A, B, V, params={}, small_enough=-1)
 
     # Save
     for i, (w, v) in enumerate(pairs):
