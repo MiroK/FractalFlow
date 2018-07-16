@@ -22,6 +22,10 @@ def hamiltonian(mesh, potential):
     b = inner(u, v)*dx
     L = inner(Constant(0), v)*dx
 
+    # FIXME: do we need the full mass matrix here. What if we took some spectally
+    # equiv cheap matrix and use its inverse to solve Ax=Bx with C^{-0.5}AC^{-0.5}
+    # Accoutn for vectors
+
     A, _ = assemble_system(a, L)
     B, _ = assemble_system(b, L)
 

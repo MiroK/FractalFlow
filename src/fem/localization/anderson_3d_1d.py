@@ -4,15 +4,15 @@ from solver import eigensolve
 from hamiltonian import hamiltonian
 import os
 
-which_curve = 'anna'
+which_curve = 'line'
 
 if which_curve == 'line':
-    mesh = UnitCubeMesh(16, 16, 16)
+    mesh = UnitCubeMesh(32, 32, 32)
     f = MeshFunction('size_t', mesh, 1, 0)
     CompiledSubDomain('near(x[0], 0.5) && near(x[1], 0.5)').mark(f, 1)
 
 else:
-    dir = '/home/miro3/Documents/Programming/enumath3d1d/src/mesh/'
+    dir = '/mn/sarpanitu/eksterne-u1/mirok/Documents/Programming/enumath3d1d/src/mesh'
     
     mesh_file = os.path.join(dir, 'vasculature_volmax2000_mesh.xml')
     curve_file = os.path.join(dir, 'vasculature_volmax2000_markers.xml')
@@ -37,3 +37,5 @@ for i, (w, v) in enumerate(pairs):
 phi = potential(V)
 phi.rename('f', '0')
 File('%s_potential.pvd' % which_curve) << phi
+
+File('%s_curve.pvd' % which_curve) << f

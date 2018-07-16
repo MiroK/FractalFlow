@@ -59,9 +59,30 @@ def eigensolve(A, B, V, params, small_enough=5000):
     E.setOperators(A ,B)
     # type is -eps_type
     E.setProblemType(SLEPc.EPS.ProblemType.GHEP)
-    E.setFromOptions()
-
+    
+    # Using shift and invert spectral transformation with zero shift?
     # FIXME: spectral transform and precond to accelerate things
+
+    if True:
+        ST = E.getST()
+        ST.setType('sinvert')
+        KSP = ST.getKSP()
+        KSP.setType('cg')
+        PC = KSP.getPC()
+        PC.setType('hypre')
+
+        ksp_params = {'-st_ksp_rtol': 1E-8,         # cvrg tolerance
+                      '-st_ksp_monitor_true_residual': 'none'}
+    
+        for key, value in ksp_params.items():
+            opts.setValue(key, None if value == 'none' else value)
+
+        # PC.setType('lu')
+        # PC.setFactorSolverPackage('mumps')
+
+        KSP.setFromOptions()
+        
+    E.setFromOptions()
     E.solve()
 
     its = E.getIterationNumber()
