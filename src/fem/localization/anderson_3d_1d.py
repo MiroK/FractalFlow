@@ -6,7 +6,7 @@ import os
 
 which_curve = 'line'
 
-if which_curve == 'line':
+if which_curve == 'anna':
     mesh = UnitCubeMesh(32, 32, 32)
     f = MeshFunction('size_t', mesh, 1, 0)
     CompiledSubDomain('near(x[0], 0.5) && near(x[1], 0.5)').mark(f, 1)
@@ -26,7 +26,7 @@ potential = lambda space, f=f: dof_chi(f, space)
 A, B, V = hamiltonian(mesh, potential)
 info('dim(V) is %d' % V.dim())
 # Compute eigenpairs
-pairs = eigensolve(A, B, V, params={}, small_enough=-1)
+pairs = eigensolve(A, B, V, params={'-eps_nev': 10}, small_enough=-1)
 
 # Save
 for i, (w, v) in enumerate(pairs):
